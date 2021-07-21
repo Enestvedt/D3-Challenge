@@ -88,6 +88,21 @@ function renderCircles(changedAxis, circlesGroup, newScale, chosenAxis) {
     return circlesGroup;
 }
 
+// func to update circle labels when new x or y label is selected
+function renderCircleLabels(changedAxis, circleLabels, newScale, chosenAxis) {
+    if (changedAxis === "X"){
+        circleLabels.transition()
+            .duration(1000)
+            .attr("x", d => xLinearScale(d[chosenAxis]));
+    }
+    else{
+        circleLabels.transition()
+            .duration(1000)
+            .attr("y", d => yLinearScale(d[chosenYAxis]) + 4);
+    }
+    return circleLabels;
+}
+
 // Retrieve data from data.csv
 d3.csv("/assets/data/data.csv").then(function (statesData, err) {
     if (err) throw (err);
@@ -123,9 +138,9 @@ d3.csv("/assets/data/data.csv").then(function (statesData, err) {
 
     let yAxis = chartGroup.append("g")
         .call(leftAxis);
-
-    // append default scatter plot circles
-    const circlesGroup = chartGroup.selectAll("circle")
+    
+        // append default scatter plot circles
+    let circlesGroup = chartGroup.selectAll("circle")
         .data(statesData)
         .enter()
         .append("circle")
@@ -135,6 +150,16 @@ d3.csv("/assets/data/data.csv").then(function (statesData, err) {
         .attr("fill", "rgb(230,0,50)")
         .attr("opacity", ".6");
 
+    let circleLabels = chartGroup.selectAll(null)
+        .data(statesData)
+        .enter()
+        .append("text").text(d => d.abbr)
+        .attr("font-size", 12)
+        .attr("x", d => xLinearScale(d[chosenXAxis]))
+        .attr("y", d => yLinearScale(d[chosenYAxis]) + 4)
+        .attr("text-anchor", "middle");    
+
+        
     const xLabelsGroup = chartGroup.append("g")
         .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + 20})`);
 
@@ -203,7 +228,7 @@ d3.csv("/assets/data/data.csv").then(function (statesData, err) {
     xLabelsGroup.selectAll("text")
         .on("click", function () {
             let value = d3.select(this).attr("value");
-
+            const myXAxis = "X";
             if (value !== chosenXAxis) {
                 chosenXAxis = value;
                 xLinearScale = xScale(statesData, chosenXAxis);
@@ -242,14 +267,15 @@ d3.csv("/assets/data/data.csv").then(function (statesData, err) {
                         .classed("inactive", false);
                 }
             }
-            let myXAxis = "X";
             circlesGroup = renderCircles(myXAxis, circlesGroup, xLinearScale, chosenXAxis);
+            circleLabels = renderCircleLabels(myXAxis, circleLabels, xLinearScale, chosenXAxis);
+
 
         });
         yLabelsGroup.selectAll("text")
         .on("click", function () {
             let value = d3.select(this).attr("value");
-
+            const myYAxis = "Y"
             if (value !== chosenYAxis) {
                 chosenYAxis = value;
                 yLinearScale = yScale(statesData, chosenYAxis);
@@ -288,8 +314,9 @@ d3.csv("/assets/data/data.csv").then(function (statesData, err) {
                         .classed("inactive", false);
                 }
             }
-            let myYAxis = "Y"
+
             circlesGroup = renderCircles(myYAxis, circlesGroup, yLinearScale, chosenYAxis);
+            circleLabels = renderCircleLabels(myYAxis, circleLabels, yLinearScale, chosenYAxis);
 
         });
         
