@@ -93,12 +93,12 @@ function renderCircleLabels(changedAxis, circleLabels, newScale, chosenAxis) {
     if (changedAxis === "X"){
         circleLabels.transition()
             .duration(1000)
-            .attr("x", d => xLinearScale(d[chosenAxis]));
+            .attr("x", d => newScale(d[chosenAxis]));
     }
     else{
         circleLabels.transition()
             .duration(1000)
-            .attr("y", d => yLinearScale(d[chosenYAxis]) + 4);
+            .attr("y", d => newScale(d[chosenYAxis]) + 4);
     }
     return circleLabels;
 }
