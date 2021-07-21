@@ -11,9 +11,9 @@ const margins = {
 
 // set initial paramaters - users will select on the dashboard after initial load
 let chosenXAxis = "poverty";
-let chosenXText = "% In Poverty";
+let chosenXText = "% In Poverty"; // this is for the tooltip
 let chosenYAxis = "healthcare";
-let chosenYText = "% Lacking Healthcare"
+let chosenYText = "% Lacking Healthcare" //for the tooltip
 
 // create the svg container based on above settings
 const svg = d3.select("#scatter")
@@ -105,6 +105,7 @@ function renderCircleLabels(changedAxis, circleLabels, newScale, chosenAxis) {
     return circleLabels;
 }
 
+// build the tooltip popup to the svg
 const toolTip = d3.tip()
     .style("background", "rgb(103, 0, 226)")
     .style("color", "white")
@@ -113,7 +114,7 @@ const toolTip = d3.tip()
     .html(function (d) {
         return (`${d["state"]} <hr style = "margin: 0px 0px 5px 0px" color = "white"> ${chosenXText}: ${d[chosenXAxis]} <br> ${chosenYText}: ${d[chosenYAxis]} `);
 });
-
+// add tooltip to the svg
 svg.call(toolTip);
 
 // Retrieve data from data.csv
@@ -152,7 +153,7 @@ d3.csv("/assets/data/data.csv").then(function (statesData, err) {
     let yAxis = chartGroup.append("g")
         .call(leftAxis);
     
-        // append default scatter plot circles
+    // append default scatter plot circles
     let circlesGroup = chartGroup.selectAll("circle")
         .data(statesData)
         .enter()
@@ -164,7 +165,7 @@ d3.csv("/assets/data/data.csv").then(function (statesData, err) {
         .attr("opacity", ".6");
 
 
-
+    // append the default state labels to circles
     let circleLabels = chartGroup.selectAll(null)
         .data(statesData)
         .enter()
@@ -174,16 +175,17 @@ d3.csv("/assets/data/data.csv").then(function (statesData, err) {
         .attr("y", d => yLinearScale(d[chosenYAxis]) + 4)
         .attr("text-anchor", "middle")
         .style("cursor", "pointer")
+        // add mouseover events to the state labels
         .on("mouseover", function(d){
             toolTip.show(d, this)
-            console.log(d);
+            // console.log(d);
         })
         .on("mouseout", function(d){
             toolTip.hide(d, this);
         });    
-
-
-        
+     
+    // add the axis labels
+    // x labels here - y labels below
     const xLabelsGroup = chartGroup.append("g")
         .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + 20})`);
 
