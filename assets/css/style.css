@@ -36,7 +36,7 @@ body {
   height: 60px;
   padding: 2px;
   padding-top: 8px;
-  font: 12px sans-serif;
+  font-size: 10px;
   color: white;
   text-align: center;
   background: "rgb(103, 0, 226)";

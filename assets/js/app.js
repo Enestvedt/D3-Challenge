@@ -11,7 +11,9 @@ const margins = {
 
 // set initial paramaters - users will select on the dashboard after initial load
 let chosenXAxis = "poverty";
+let chosenXText = "% In Poverty";
 let chosenYAxis = "healthcare";
+let chosenYText = "% Lacking Healthcare"
 
 // create the svg container based on above settings
 const svg = d3.select("#scatter")
@@ -103,6 +105,17 @@ function renderCircleLabels(changedAxis, circleLabels, newScale, chosenAxis) {
     return circleLabels;
 }
 
+const toolTip = d3.tip()
+    .style("background", "rgb(103, 0, 226)")
+    .style("color", "white")
+    .style("padding", "8px")
+    .style("border-radius", "10px")
+    .html(function (d) {
+        return (`${d["state"]} <hr style = "margin: 0px 0px 5px 0px" color = "white"> ${chosenXText}: ${d[chosenXAxis]} <br> ${chosenYText}: ${d[chosenYAxis]} `);
+});
+
+svg.call(toolTip);
+
 // Retrieve data from data.csv
 d3.csv("/assets/data/data.csv").then(function (statesData, err) {
     if (err) throw (err);
@@ -150,6 +163,8 @@ d3.csv("/assets/data/data.csv").then(function (statesData, err) {
         .attr("fill", "rgb(230,0,50)")
         .attr("opacity", ".6");
 
+
+
     let circleLabels = chartGroup.selectAll(null)
         .data(statesData)
         .enter()
@@ -157,7 +172,16 @@ d3.csv("/assets/data/data.csv").then(function (statesData, err) {
         .attr("font-size", 12)
         .attr("x", d => xLinearScale(d[chosenXAxis]))
         .attr("y", d => yLinearScale(d[chosenYAxis]) + 4)
-        .attr("text-anchor", "middle");    
+        .attr("text-anchor", "middle")
+        .style("cursor", "pointer")
+        .on("mouseover", function(d){
+            toolTip.show(d, this)
+            console.log(d);
+        })
+        .on("mouseout", function(d){
+            toolTip.hide(d, this);
+        });    
+
 
         
     const xLabelsGroup = chartGroup.append("g")
@@ -231,6 +255,7 @@ d3.csv("/assets/data/data.csv").then(function (statesData, err) {
             const myXAxis = "X";
             if (value !== chosenXAxis) {
                 chosenXAxis = value;
+                chosenXText = d3.select(this).text();
                 xLinearScale = xScale(statesData, chosenXAxis);
                 xAxis = renderXAxis(xLinearScale, xAxis);
 
@@ -278,6 +303,7 @@ d3.csv("/assets/data/data.csv").then(function (statesData, err) {
             const myYAxis = "Y"
             if (value !== chosenYAxis) {
                 chosenYAxis = value;
+                chosenYText = d3.select(this).text();
                 yLinearScale = yScale(statesData, chosenYAxis);
                 yAxis = renderYAxis(yLinearScale, yAxis);
 
